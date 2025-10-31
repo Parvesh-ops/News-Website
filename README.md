@@ -1,16 +1,23 @@
-# React + Vite
+# 📰 React NewsApp
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive **News Application** built with **React**, **Tailwind CSS**, and **Axios**, powered by the **NewsAPI**.  
+This app lets users explore trending and categorized news like Sports, Politics, Health, Entertainment, and Fitness — all fetched dynamically from the web.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## React Compiler
+- 🔍 **Search Functionality** — Search any topic to get the latest news articles.  
+- 🧭 **Category Filtering** — View news instantly by category (Sports, Politics, Health, etc.).  
+- 📰 **Dynamic Content** — Fetches live news data using the [NewsAPI](https://newsapi.org/).  
+- 💅 **Modern UI** — Built with Tailwind CSS for responsive, clean, and fast design.  
+- ⚡ **Real-time Updates** — Each category or search fetches new articles dynamically.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **React JS** — Frontend Framework  
+- **Axios** — For fetching API data  
+- **Tailwind CSS** — For modern, responsive design  
+- **NewsAPI.org** — For news data source
