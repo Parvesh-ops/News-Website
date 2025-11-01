@@ -5,31 +5,39 @@ import axios from 'axios';
 const NewsApp = () => {
     const [search, setSearch] = useState('')
     const [newsData, setNewsData] = useState([])
+    const [Error, setError] = useState(false)
+    const [Loading, setLoading] = useState(false)
+    const [isSearching, setIsSearching] = useState(false) 
     const API_KEY = "6be78d02561e4ed1ada762dd8a45ff0b";
 
     // Fetch news based on query
-    const getData = async (query) => {
+    const getData = async (query, fromSearch = false) => {
         try {
+            setLoading(true)
+            setError(false)
+            if (fromSearch) setIsSearching(true) // ✅ show spinner only for search
+            
             const response = await axios.get(`https://newsapi.org/v2/everything?q=${query}&apiKey=${API_KEY}`)
             setNewsData(response.data.articles)
-            setSearch('') // clear search input after fetching
+            setSearch('')
         } catch (error) {
-            console.error(error)
+            setError(true)
+        } finally {
+            setLoading(false)
+            setIsSearching(false) // ✅ hide spinner after search completes
         }
     }
 
-    const handleInput = (e) => {
-        setSearch(e.target.value)
-    }
+    const handleInput = (e) => setSearch(e.target.value)
 
     const handleSearchClick = () => {
         if (search.trim() !== '') {
-            getData(search)
+            getData(search, true) // ✅ tell getData it’s a search request
         }
     }
 
     const handleCategoryClick = (category) => {
-        getData(category)
+        getData(category, false) // ✅ category fetch won’t trigger spinner
     }
 
     return (
@@ -51,13 +59,26 @@ const NewsApp = () => {
                         onChange={handleInput}
                         className='w-64 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300'
                     />
-                    <button onClick={handleSearchClick} className='bg-white text-blue-500 font-semibold px-4 py-2 rounded-md hover:bg-gray-100 transition'>
+                    <button 
+                        onClick={handleSearchClick} 
+                        className='bg-white text-blue-500 font-semibold px-4 py-2 rounded-md hover:bg-gray-100 transition'>
                         Search
                     </button>
                 </div>
             </nav>
 
             <p className='text-center text-xl m-4'>Stay Updated with Trending News</p>
+
+            {/* Error Message */}
+            {Error && <p className="text-center text-red-500 font-medium">⚠️ Error: Failed to fetch data</p>}
+
+            {/* Loading Spinner (only when searching) */}
+            {isSearching && (
+                <div className="flex justify-center items-center my-8">
+                    <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="ml-3 text-blue-500 font-semibold text-lg">Searching News...</p>
+                </div>
+            )}
 
             {/* Category Buttons */}
             <div className="flex flex-wrap justify-center gap-3 mt-6 mb-6">
@@ -78,9 +99,15 @@ const NewsApp = () => {
             </div>
 
             {/* Cards Container */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-8">
-                {newsData.length > 0 ? <Card data={newsData} /> : <p className="col-span-full text-center text-gray-500">No news to display.</p>}
-            </div>
+            {!Loading && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-8">
+                    {newsData.length > 0 ? (
+                        <Card data={newsData} />
+                    ) : (
+                        <p className="col-span-full text-center text-gray-500">No news to display.</p>
+                    )}
+                </div>
+            )}
         </div>
     )
 }
