@@ -21,3 +21,5 @@ This app lets users explore trending and categorized news like Sports, Politics,
 - **Axios** — For fetching API data  
 - **Tailwind CSS** — For modern, responsive design  
 - **NewsAPI.org** — For news data source
+
+  ![image alt](https://github.com/Parvesh-ops/News-Website/blob/3c4863b1befabaef883ab3b065163b174d45327a/Screenshot-250.jpg)
