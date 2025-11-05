@@ -16,9 +16,8 @@ const NewsApp = () => {
             setLoading(true)
             setError(false)
             if (fromSearch) setIsSearching(true) // ✅ show spinner only for search
-            
             const response = await axios.get(`https://newsapi.org/v2/everything?q=${query}&apiKey=${API_KEY}`)
-            setNewsData(response.data.articles)
+            setNewsData(response.data.articles)// “Because the API returns an object with an articles array inside data, so we use .articles to get only the useful part we need to display.”
             setSearch('')
         } catch (error) {
             setError(true)
@@ -43,7 +42,7 @@ const NewsApp = () => {
     return (
         <div className="min-h-screen bg-gray-100 font-sans">
             {/* Navbar */}
-            <nav className='flex flex-col md:flex-row items-center justify-between bg-blue-500 text-white p-4 shadow-md'>
+            <nav className='flex flex-col md:flex-row items-center justify-between bg-blue-500 text-white p-4 shadow-md sticky top-0'>
                 <div className='text-2xl font-bold mb-2 md:mb-0'>
                     Trending News
                 </div>
