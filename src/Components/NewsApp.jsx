@@ -18,7 +18,6 @@ const NewsApp = () => {
             if (fromSearch) setIsSearching(true) // ✅ show spinner only for search
             const response = await axios.get(`https://newsapi.org/v2/everything?q=${query}&apiKey=${API_KEY}`)
             setNewsData(response.data.articles)// “Because the API returns an object with an articles array inside data, so we use .articles to get only the useful part we need to display.”
-            setSearch('')
         } catch (error) {
             setError(true)
         } finally {
