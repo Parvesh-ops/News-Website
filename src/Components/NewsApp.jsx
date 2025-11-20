@@ -1,113 +1,132 @@
-import React, { useState } from 'react'
-import Card from './Card'
+import React, { useState, useEffect } from 'react';
+import Card from './Card';
 import axios from 'axios';
 
 const NewsApp = () => {
-    const [search, setSearch] = useState('')
-    const [newsData, setNewsData] = useState([])
-    const [Error, setError] = useState(false)
-    const [Loading, setLoading] = useState(false)
-    const [isSearching, setIsSearching] = useState(false) 
-    const API_KEY = "6be78d02561e4ed1ada762dd8a45ff0b";
+  const [search, setSearch] = useState('');
+  const [newsData, setNewsData] = useState([]);
+  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const API_KEY = import.meta.env.VITE_NEWS_API_KEY;
 
-    // Fetch news based on query
-    const getData = async (query, fromSearch = false) => {
-        try {
-            setLoading(true)
-            setError(false)
-            if (fromSearch) setIsSearching(true) // ✅ show spinner only for search
-            const response = await axios.get(`https://newsapi.org/v2/everything?q=${query}&apiKey=${API_KEY}`)
-            setNewsData(response.data.articles)// “Because the API returns an object with an articles array inside data, so we use .articles to get only the useful part we need to display.”
-        } catch (error) {
-            setError(true)
-        } finally {
-            setLoading(false)
-            setIsSearching(false) // ✅ hide spinner after search completes
-        }
+  // Fetch news based on query
+  const getData = async (query, fromSearch = false) => {
+    try {
+      setLoading(true);
+      setError(false);
+      if (fromSearch) setIsSearching(true);
+
+      const url = `https://newsapi.org/v2/everything?q=${query}&sortBy=publishedAt&apiKey=${API_KEY}`;
+      console.log("Fetching from:", url);
+
+      const response = await axios.get(url);
+      setNewsData(response.data.articles || []);
+
+    } catch (err) {
+      console.error("Fetch Error:", err);
+      const msg = err?.response?.data?.message || err?.message || JSON.stringify(err);
+      setErrorMsg(msg);
+      setError(true);
+    } finally {
+      setLoading(false);
+      setIsSearching(false);
     }
+  };
 
-    const handleInput = (e) => setSearch(e.target.value)
+  // Default fetch on first load
+  useEffect(() => {
+    getData('trending'); // Fetch trending news on mount
+  }, []);
 
-    const handleSearchClick = () => {
-        if (search.trim() !== '') {
-            getData(search, true) // ✅ tell getData it’s a search request
-        }
+  const handleInput = (e) => setSearch(e.target.value);
+
+  const handleSearchClick = () => {
+    if (search.trim() !== '') {
+      getData(search, true);
     }
+  };
 
-    const handleCategoryClick = (category) => {
-        getData(category, false) // ✅ category fetch won’t trigger spinner
-    }
+  const handleCategoryClick = (category) => {
+    getData(category, false);
+  };
 
-    return (
-        <div className="min-h-screen bg-gray-100 font-sans">
-            {/* Navbar */}
-            <nav className='flex flex-col md:flex-row items-center justify-between bg-blue-500 text-white p-4 shadow-md sticky top-0'>
-                <div className='text-2xl font-bold mb-2 md:mb-0'>
-                    Trending News
-                </div>
-                <ul className='flex space-x-4 mb-2 md:mb-0'>
-                    <li className='hover:text-gray-200 cursor-pointer'>All News</li>
-                    <li className='hover:text-gray-200 cursor-pointer'>Trending</li>
-                </ul>
-                <div className='flex items-center space-x-2'>
-                    <input
-                        type='text'
-                        placeholder='Search News'
-                        value={search}
-                        onChange={handleInput}
-                        className='w-64 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300'
-                    />
-                    <button 
-                        onClick={handleSearchClick} 
-                        className='bg-white text-blue-500 font-semibold px-4 py-2 rounded-md hover:bg-gray-100 transition'>
-                        Search
-                    </button>
-                </div>
-            </nav>
-
-            <p className='text-center text-xl m-4'>Stay Updated with Trending News</p>
-
-            {/* Error Message */}
-            {Error && <p className="text-center text-red-500 font-medium">⚠️ Error: Failed to fetch data</p>}
-
-            {/* Loading Spinner (only when searching) */}
-            {isSearching && (
-                <div className="flex justify-center items-center my-8">
-                    <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="ml-3 text-blue-500 font-semibold text-lg">Searching News...</p>
-                </div>
-            )}
-
-            {/* Category Buttons */}
-            <div className="flex flex-wrap justify-center gap-3 mt-6 mb-6">
-                {['Sports', 'Politics', 'Entertainment', 'Health', 'Fitness'].map((cat) => (
-                    <button
-                        key={cat}
-                        onClick={() => handleCategoryClick(cat)}
-                        className={`px-4 py-2 rounded-full text-white transition
-                            ${cat === 'Sports' ? 'bg-blue-500 hover:bg-blue-600' : ''}
-                            ${cat === 'Politics' ? 'bg-green-500 hover:bg-green-600' : ''}
-                            ${cat === 'Entertainment' ? 'bg-purple-500 hover:bg-purple-600' : ''}
-                            ${cat === 'Health' ? 'bg-red-500 hover:bg-red-600' : ''}
-                            ${cat === 'Fitness' ? 'bg-yellow-500 hover:bg-yellow-600' : ''}`}
-                    >
-                        {cat}
-                    </button>
-                ))}
-            </div>
-
-            {/* Cards Container */}
-            {!Loading && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-8">
-                    {newsData.length > 0 ? (
-                        <Card data={newsData} />
-                    ) : (
-                        <p className="col-span-full text-center text-gray-500">No news to display.</p>
-                    )}
-                </div>
-            )}
+  return (
+    <div className="min-h-screen bg-gray-100 font-sans">
+      {/* Navbar */}
+      <nav className='flex flex-col md:flex-row items-center justify-between bg-blue-500 text-white p-4 shadow-md sticky top-0'>
+        <div className='text-2xl font-bold mb-2 md:mb-0'>Trending News</div>
+        <ul className='flex space-x-4 mb-2 md:mb-0'>
+          <li className='hover:text-gray-200 cursor-pointer'>All News</li>
+          <li className='hover:text-gray-200 cursor-pointer'>Trending</li>
+        </ul>
+        <div className='flex items-center space-x-2'>
+          <input
+            type='text'
+            placeholder='Search News'
+            value={search}
+            onChange={handleInput}
+            className='w-64 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300'
+          />
+          <button
+            onClick={handleSearchClick}
+            className='bg-white text-blue-500 font-semibold px-4 py-2 rounded-md hover:bg-gray-100 transition'>
+            Search
+          </button>
         </div>
-    )
-}
+      </nav>
 
-export default NewsApp
+      <p className='text-center text-xl m-4'>Stay Updated with Trending News</p>
+
+      {/* Error Message */}
+      {error && (
+        <p className="text-center text-red-500 font-medium">
+          ⚠️ Error: Failed to fetch data
+          {errorMsg && <span>: {errorMsg}</span>}
+        </p>
+      )}
+
+      {/* Loading Spinner */}
+      {loading && (
+        <div className="flex justify-center items-center my-8">
+          <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+          <p className="ml-3 text-blue-500 font-semibold text-lg">
+            {isSearching ? 'Searching News...' : 'Loading News...'}
+          </p>
+        </div>
+      )}
+
+      {/* Category Buttons */}
+      <div className="flex flex-wrap justify-center gap-3 mt-6 mb-6">
+        {['Sports', 'Politics', 'Entertainment', 'Health', 'Fitness'].map((cat) => (
+          <button
+            key={cat}
+            onClick={() => handleCategoryClick(cat)}
+            className={`px-4 py-2 rounded-full text-white transition
+              ${cat === 'Sports' ? 'bg-blue-500 hover:bg-blue-600' : ''}
+              ${cat === 'Politics' ? 'bg-green-500 hover:bg-green-600' : ''}
+              ${cat === 'Entertainment' ? 'bg-purple-500 hover:bg-purple-600' : ''}
+              ${cat === 'Health' ? 'bg-red-500 hover:bg-red-600' : ''}
+              ${cat === 'Fitness' ? 'bg-yellow-500 hover:bg-yellow-600' : ''}`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Cards Container */}
+      {!loading && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pb-8">
+          {newsData.length > 0 ? (
+            <Card data={newsData} />
+          ) : (
+            <p className="col-span-full text-center text-gray-500">No news to display.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default NewsApp;
